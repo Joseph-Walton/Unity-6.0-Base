@@ -1,0 +1,30 @@
+﻿using System;
+using UnityEngine;
+
+namespace ComponentStateMachine.Evaluate
+{
+    [Serializable]
+    public abstract class Evaluater : MonoBehaviour
+    {
+
+        public Action valueChanged = delegate { };
+        [field: SerializeField]public bool boolValue {  get; private set; }
+
+
+        public void CheckSetValueIfChanged(bool value)
+        {
+            if (this.boolValue == value)
+            {
+                return;
+            }
+            else
+            {
+                boolValue = value;
+                valueChanged?.Invoke();
+            }
+
+        }
+
+    }
+}
+

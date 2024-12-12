@@ -26,6 +26,10 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         }
         inputActions.Enable();
     }
+    private void OnDisable()
+    {
+        inputActions.Disable();
+    }
     public void EnablePlayerActions()
     {
         inputActions.Enable();

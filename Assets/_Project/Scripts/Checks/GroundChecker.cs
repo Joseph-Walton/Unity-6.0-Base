@@ -14,6 +14,25 @@ public class GroundChecker : MonoBehaviour
 
     public List<GroundRay> groundRays = new List<GroundRay>();
 
+
+    public Action<Contact> ContactChanged = delegate(Contact priorityContact) { };
+
+    [SerializeField] private Contact priorityContact = new Contact();
+    public Contact PriorityContact
+    {
+        get { return priorityContact; }
+        private set 
+        {
+            if (PriorityContact == value)
+            {
+                return;
+            }
+            priorityContact = value;
+            ContactChanged?.Invoke(PriorityContact);
+            
+        }
+    }
+
     private void Awake()
     {
         foreach (var ray in groundRays)
@@ -28,7 +47,7 @@ public class GroundChecker : MonoBehaviour
         {
             ray.ShootRay(transform, groundMask);
         }
-
+        PriorityContact = SortPriorityContact();
     }
     private void FixedUpdate()
     {
@@ -36,8 +55,12 @@ public class GroundChecker : MonoBehaviour
         {
             ray.ShootRay(transform, groundMask);
         }
+        PriorityContact = SortPriorityContact();
     }
-    public Contact GetPriorityContact()
+
+
+
+    private Contact SortPriorityContact()
     {
         List<GroundRay> sortedRays = SortedRays();
         foreach (var ray in sortedRays)

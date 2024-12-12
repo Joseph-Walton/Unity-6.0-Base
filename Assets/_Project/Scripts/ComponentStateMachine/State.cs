@@ -1,15 +1,261 @@
+using System.Collections.Generic;
+using System;
 using UnityEngine;
+using ComponentStateMachine.Evaluate;
 
 namespace ComponentStateMachine
 {
-    public abstract class State : MonoBehaviour
+    [Serializable]
+    public abstract class State : MonoBehaviour, IState
     {
-        public bool IsComplete { get; private set; }
+        [SerializeField] private State defaultChild;
 
-        public virtual void Enter() { }
-        public virtual void Do() { }
-        public virtual void FixedDo() { }
-        public virtual void Exit() { }
+        private bool isComplete = false;
+        public bool IsComplete 
+        {
+            get => isComplete;
+            private set
+            {
+                isComplete = value;
+                StateCompleted?.Invoke(isComplete);
+            }
+        }
+        private bool isActive = false;
+        public bool IsActive
+        {
+            get => isActive;
+            private set
+            {
+                ActiveChanged?.Invoke(isActive);
+            }
+        }
+
+        [field: SerializeField]public State activeChildState { get; private set; }
+
+        public List<StateTransitions> stateTransitions = new List<StateTransitions>();
+
+        //events
+
+        public Action<bool> ActiveChanged = delegate { };
+        public Action<bool> StateCompleted = delegate { };
+        private void OnEnable()
+        {
+            foreach (var transition in stateTransitions)
+            {
+                transition.EvaluatedTrue += ChangeChildState;
+            }
+        }
+        private void OnDisable()
+        {
+            foreach (var transition in stateTransitions)
+            {
+                transition.EvaluatedTrue += ChangeChildState;
+            }
+        }
+
+        public void ChangeChildState(State state)
+        {
+            activeChildState.Exit();
+            activeChildState.IsActive = false;
+            activeChildState = state;
+            activeChildState.Enter();
+            activeChildState.IsActive = true;
+        }
+        public void Awake()
+        {
+            SetUp();
+        }
+        public void SetUp()
+        {
+            if (defaultChild != null)
+            {
+                activeChildState = defaultChild;
+                activeChildState.Enter();
+                activeChildState.IsActive = true;
+            }
+        }
+        public abstract void Enter();
+        public abstract void Do();
+        public abstract void FixedDo() ;
+        public abstract void Exit();    
+
+        public void BranchDo()
+        {
+            Do();
+            activeChildState.BranchDo();
+        }
+        public void BranchFixedDo()
+        {
+            FixedDo();
+            activeChildState.BranchFixedDo();
+        }
+
+    }
+
+    public class PlayerStateController : MonoBehaviour
+    {
+        [SerializeField] GroundChecker gc;
+        [SerializeField] Rigidbody rb;
+        private bool IsGrounded => gc.PriorityContact.onGround;
+
+        public GroundState groundState;
+
+        public AirState airState;
+
+        public State currentState;
+
+        public void Awake()
+        {
+            currentState = groundState;
+        }
+
+        public void Update()
+        {
+            if (IsGrounded)
+            {
+                currentState = groundState;
+            }
+            else
+            {
+                currentState = airState;
+            }
+        }
+    }
+
+    public class AirState : State
+    {
+        public override void Do()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Enter()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Exit()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FixedDo()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class WalkState : State
+    {
+        public override void Do()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Enter()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Exit()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FixedDo()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class StateMachine : MonoBehaviour
+    {
+
+        StateNode current;
+        Dictionary<Type, StateNode> nodes = new();
+        HashSet<ITransition> anyTransition = new();
+
+        ITransition GetTransition()
+        {
+            foreach (var transition in anyTransition)
+            {
+                if (transition.Condition.Evaluate())
+                {
+                    return transition;
+                }
+            }
+
+            foreach (var transition in current.Transitions)
+            {
+                if (transition.Condition.Evaluate())
+                {
+                    return transition;
+                }
+            }
+            return null;
+        }
+    }
+
+    public class StateCheck 
+    {
+
+    }
+    class StateNode
+    {
+        public IState State { get; }
+        public HashSet<Transition> Transitions { get; }
+
+        public StateNode(IState state)
+        {
+            State = state;
+            Transitions = new HashSet<Transition>();
+        }
+
+        public void AddTransition(IState to, IPredicate condition)
+        {
+            Transitions.Add(new Transition(to, condition));
+        }
+    }
+    public interface ITransition
+    {
+        IState To { get; }
+        IPredicate Condition { get; }
+    }
+    public interface IPredicate
+    {
+        bool Evaluate();
+    }
+    public class FuncPredicate : IPredicate
+    {
+        readonly Func<bool> func;
+
+        public FuncPredicate(Func<bool> func)
+        {
+            this.func = func;
+        }
+
+        public bool Evaluate()
+        {
+            return func.Invoke();
+        }
+    }
+    public interface IState
+    {
+        public void Enter();
+        public void Do();
+        public void FixedDo();
+        public void Exit();
+    }
+    public class Transition : ITransition
+    {
+        public IState To { get; }
+        public IPredicate Condition { get; }
+
+        public Transition(IState to, IPredicate condition)
+        {
+            To = to;
+            Condition = condition;
+        }
     }
 }
 
