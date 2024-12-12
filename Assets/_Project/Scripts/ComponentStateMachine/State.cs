@@ -10,7 +10,7 @@ namespace ComponentStateMachine
     {
         [SerializeField] private State defaultChild;
 
-        private bool isComplete = false;
+        [SerializeField] private bool isComplete = false;
         public bool IsComplete 
         {
             get => isComplete;
@@ -20,7 +20,7 @@ namespace ComponentStateMachine
                 StateCompleted?.Invoke(isComplete);
             }
         }
-        private bool isActive = false;
+        [SerializeField] private bool isActive = false;
         public bool IsActive
         {
             get => isActive;
