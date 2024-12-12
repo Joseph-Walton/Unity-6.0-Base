@@ -12,6 +12,8 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     public event UnityAction EnableMouseControlCamera = delegate { };
     public event UnityAction DisableMouseControlCamera = delegate { };
     public event UnityAction<bool> Jump = delegate { };
+    public event UnityAction<bool> Sprint = delegate { };
+    public event UnityAction<bool> Crouching = delegate { };
 
     PlayerInput inputActions;
 
@@ -64,11 +66,6 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         //noop
     }
 
-    public void OnRun(InputAction.CallbackContext context)
-    {
-        //noop
-    }
-
     public void OnMouseControlCamera(InputAction.CallbackContext context)
     {
         switch (context.phase)
@@ -79,6 +76,32 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
             case InputActionPhase.Canceled:
                 DisableMouseControlCamera();
                 break;    
+        }
+    }
+
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                Sprint.Invoke(true);
+                break;
+            case InputActionPhase.Canceled:
+                Sprint.Invoke(false);
+                break;
+        }
+    }
+
+    public void OnCrouch(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                Crouching.Invoke(true);
+                break;
+            case InputActionPhase.Canceled:
+                Crouching.Invoke(false);
+                break;
         }
     }
 }

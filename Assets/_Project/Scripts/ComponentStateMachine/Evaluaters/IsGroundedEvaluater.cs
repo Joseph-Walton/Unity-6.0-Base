@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ComponentStateMachine.Evaluate
 {
-    public class IsGroundedEvaluater : Evaluater
+    public class IsGroundedEvaluater : BaseEvaluater
     {
 
         [SerializeField] GroundChecker gc;

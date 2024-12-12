@@ -9,7 +9,7 @@ namespace ComponentStateMachine.Evaluate
     {
 
         public Action<State> EvaluatedTrue = delegate(State state) { };
-        public State stateToTransitionTo;
+        public State childStateToSet;
         [SerializeField] private List<EvaluateTarget> evaluaters = new List<EvaluateTarget>();
 
         public void OnEnable()
@@ -37,10 +37,10 @@ namespace ComponentStateMachine.Evaluate
                     return;
                 }
             }
-            if (stateToTransitionTo != null)
+            if (childStateToSet != null)
             {
                 Debug.Log("evaluated true");
-                EvaluatedTrue?.Invoke(stateToTransitionTo);
+                EvaluatedTrue?.Invoke(childStateToSet);
             }
            
         }

@@ -2,7 +2,7 @@
 
 namespace ComponentStateMachine.Evaluate
 {
-    public class IsStateActiveEvaluater : Evaluater
+    public class IsStateActiveEvaluater : BaseEvaluater
     {
         [SerializeField] State state;
 

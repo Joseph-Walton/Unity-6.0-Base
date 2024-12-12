@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ComponentStateMachine.Evaluate
 {
     [Serializable]
-    public abstract class Evaluater : MonoBehaviour
+    public abstract class BaseEvaluater : MonoBehaviour
     {
 
         public Action valueChanged;

@@ -5,7 +5,7 @@ namespace ComponentStateMachine.Evaluate
     [Serializable]
     public class EvaluateTarget
     {
-        public Evaluater evaluater;
+        public BaseEvaluater evaluater;
         public bool target;
         public bool Evaluate()
         {
