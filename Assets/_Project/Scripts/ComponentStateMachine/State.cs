@@ -8,13 +8,14 @@ namespace ComponentStateMachine
     [Serializable]
     public abstract class State : MonoBehaviour, IState
     {
+
         [SerializeField] private State defaultChild;
 
         [SerializeField] private bool isComplete = false;
         public bool IsComplete 
         {
             get => isComplete;
-            private set
+            set
             {
                 isComplete = value;
                 StateCompleted?.Invoke(isComplete);
@@ -24,8 +25,9 @@ namespace ComponentStateMachine
         public bool IsActive
         {
             get => isActive;
-            private set
+            set
             {
+                isActive = value;
                 ActiveChanged?.Invoke(isActive);
             }
         }
@@ -42,21 +44,27 @@ namespace ComponentStateMachine
         {
             foreach (var transition in stateTransitions)
             {
+                transition?.OnEnable();
                 transition.EvaluatedTrue += ChangeChildState;
+
             }
         }
         private void OnDisable()
         {
             foreach (var transition in stateTransitions)
             {
+                transition?.OnDisable();
                 transition.EvaluatedTrue += ChangeChildState;
             }
         }
 
         public void ChangeChildState(State state)
         {
-            activeChildState.Exit();
-            activeChildState.IsActive = false;
+            if (activeChildState != null)
+            {
+                activeChildState.Exit();
+                activeChildState.IsActive = false;
+            }
             activeChildState = state;
             activeChildState.Enter();
             activeChildState.IsActive = true;
@@ -82,44 +90,22 @@ namespace ComponentStateMachine
         public void BranchDo()
         {
             Do();
-            activeChildState.BranchDo();
+            if (activeChildState != null)
+            {
+                activeChildState.BranchDo();
+            }
+            
         }
         public void BranchFixedDo()
         {
             FixedDo();
-            activeChildState.BranchFixedDo();
-        }
-
-    }
-
-    public class PlayerStateController : MonoBehaviour
-    {
-        [SerializeField] GroundChecker gc;
-        [SerializeField] Rigidbody rb;
-        private bool IsGrounded => gc.PriorityContact.onGround;
-
-        public GroundState groundState;
-
-        public AirState airState;
-
-        public State currentState;
-
-        public void Awake()
-        {
-            currentState = groundState;
-        }
-
-        public void Update()
-        {
-            if (IsGrounded)
+            if (activeChildState != null)
             {
-                currentState = groundState;
+                activeChildState.BranchFixedDo();
             }
-            else
-            {
-                currentState = airState;
-            }
+            
         }
+
     }
 
     public class AirState : State

@@ -11,14 +11,15 @@ namespace ComponentStateMachine.Evaluate
         public Action<State> EvaluatedTrue = delegate(State state) { };
         public State stateToTransitionTo;
         [SerializeField] private List<EvaluateTarget> evaluaters = new List<EvaluateTarget>();
-        public StateTransitions()
+
+        public void OnEnable()
         {
             foreach (EvaluateTarget eval in evaluaters)
             {
                 eval.evaluater.valueChanged += () => Evaluate();
             }
         }
-        ~StateTransitions()
+        public void OnDisable()
         {
             foreach (EvaluateTarget eval in evaluaters)
             {
@@ -27,16 +28,18 @@ namespace ComponentStateMachine.Evaluate
         }
         public void Evaluate()
         {
-            Debug.Log("evaluate");
+            
             foreach(EvaluateTarget eval in evaluaters)
             {
                 if (!eval.Evaluate())
                 {
+                    Debug.Log("evaluated false");
                     return;
                 }
             }
             if (stateToTransitionTo != null)
             {
+                Debug.Log("evaluated true");
                 EvaluatedTrue?.Invoke(stateToTransitionTo);
             }
            

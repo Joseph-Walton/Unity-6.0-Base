@@ -7,7 +7,7 @@ namespace ComponentStateMachine.Evaluate
     public abstract class Evaluater : MonoBehaviour
     {
 
-        public Action valueChanged = delegate { };
+        public Action valueChanged;
         [field: SerializeField]public bool boolValue {  get; private set; }
 
 

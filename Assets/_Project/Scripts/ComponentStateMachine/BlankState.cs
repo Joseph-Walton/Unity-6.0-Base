@@ -1,8 +1,10 @@
 ﻿namespace ComponentStateMachine
 {
-    public class GroundState : State
+    /// <summary>
+    /// blank states doesnt do anything but manage the its child states
+    /// </summary>
+    public class BlankState : State
     {
-
         public override void Do()
         {
             //noop
@@ -10,17 +12,17 @@
 
         public override void Enter()
         {
-            //noop
+           //noop
         }
 
         public override void Exit()
         {
-            //noop
+           //noop
         }
 
         public override void FixedDo()
         {
-            //noop
+           //noop
         }
     }
 }
